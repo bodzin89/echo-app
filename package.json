@@ -1,0 +1,40 @@
+{
+  "name": "moonactive",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "test:acceptance": "mocha --opts ./test/mocha.acceptance.opts",
+    "test:integration": "mocha --opts ./test/mocha.integration.opts",
+    "test:unit": "mocha --opts ./test/mocha.unit.opts",
+    "api:start": "node ./api"
+  },
+  "dependencies": {
+    "koa": "^2.5.3",
+    "koa-router": "^7.4.0"
+  },
+  "devDependencies": {
+    "@types/faker": "^4.1.4",
+    "@types/koa": "^2.0.46",
+    "@types/koa-router": "^7.0.32",
+    "@types/redis": "^2.8.6",
+    "@types/sinon": "^5.0.2",
+    "axios": "^0.18.0",
+    "chai": "^4.1.2",
+    "eslint": "^5.6.0",
+    "eslint-config-prettier": "^3.0.1",
+    "faker": "^4.1.0",
+    "koa-body": "^4.0.4",
+    "mocha": "^5.2.0",
+    "prettier-eslint": "^8.8.2",
+    "proxyquire": "^2.1.0",
+    "redis": "^2.8.0",
+    "sinon": "^6.3.4"
+  },
+  "workspaces": [
+    "api",
+    "config",
+    "common"
+  ],
+  "private": true
+}

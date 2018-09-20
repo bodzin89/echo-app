@@ -1,0 +1,5 @@
+--recursive
+--exit
+
+{,!(node_modules)/**/test/unit/**/}*test.js*
+{,!(node_modules)/**/**/test/unit/**/}*test.js*

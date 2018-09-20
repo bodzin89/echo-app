@@ -1,0 +1,67 @@
+{
+  "root": true,
+  "env": {
+    "es6": true,
+    "node": true,
+    "mocha": true
+  },
+  "extends": ["eslint:recommended"],
+  "parserOptions": {
+    "ecmaVersion": 8,
+    "ecmaFeatures": {
+      "experimentalObjectRestSpread": true
+    }
+  },
+  "rules": {
+    "complexity": "warn",
+    "prefer-const": [
+      "error",
+      {
+        "destructuring": "all",
+        "ignoreReadBeforeAssign": false
+      }
+    ],
+    "func-style": ["error", "declaration", { "allowArrowFunctions": true }],
+    "vars-on-top": "error",
+    "require-await": "error",
+    "global-require": "error",
+    "object-curly-spacing": ["error", "always"],
+    "newline-per-chained-call": ["error", { "ignoreChainWithDepth": 1 }],
+    "indent": ["error", 2, { "SwitchCase": 1 }],
+    "linebreak-style": ["error", "unix"],
+    "quotes": ["warn", "single"],
+    "semi": ["warn", "always"],
+    "eqeqeq": "error",
+    "keyword-spacing": "warn",
+    "newline-after-var": "warn",
+    "semi-style": ["error", "last"],
+    "func-call-spacing": "warn",
+    "prefer-arrow-callback": "warn",
+    "arrow-body-style": "error",
+    "prefer-spread": "warn",
+    "no-useless-constructor": "error",
+    "no-dupe-keys": "error",
+    "no-empty": "error",
+    "no-debugger": "error",
+    "no-new-require": "error",
+    "no-mixed-requires": "error",
+    "no-var": "error",
+    "no-const-assign": "error",
+    "no-duplicate-imports": "error",
+    "no-extra-semi": "error",
+    "no-whitespace-before-property": "error",
+    "no-unused-vars": "error",
+    "no-console": "error",
+    "arrow-parens": "off",
+    "comma-dangle": [
+      "error",
+      {
+        "arrays": "never",
+        "objects": "never",
+        "imports": "never",
+        "exports": "never",
+        "functions": "ignore"
+      }
+    ]
+  }
+}

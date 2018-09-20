@@ -1,0 +1,6 @@
+--timeout 5000
+--recursive
+--exit
+
+{,!(node_modules)/**/test/integration/**/}*test.js*
+{,!(node_modules)/**/**/test/integration/**/}*test.js*
