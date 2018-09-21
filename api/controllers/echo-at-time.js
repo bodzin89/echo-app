@@ -16,10 +16,8 @@ module.exports = class EchoController {
   }
 
   _validate(message, timestamp) {
-    if (!(message || timestamp)) {
-      const messages = 'Message or timestamp wasnt sent.';
-
-      throw new BadRequestResponse(messages);
+    if (!message || !timestamp) {
+      throw new BadRequestResponse('Message or timestamp wasnt sent.');
     }
 
     if (Date.now() > timestamp) {

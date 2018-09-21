@@ -33,6 +33,7 @@ describe('Echo At Time API', () => {
         };
 
         await axios.post(acceptanceBaseUrl, body);
+        throw new Error('Should throw Error.');
       } catch (error) {
         response = error.response;
       }
@@ -43,7 +44,7 @@ describe('Echo At Time API', () => {
     });
 
     it('should return array of errors', () => {
-      assert.isArray(response.body);
+      assert.isArray(response.data);
     });
   });
 
@@ -60,6 +61,7 @@ describe('Echo At Time API', () => {
           };
 
           await axios.post(acceptanceBaseUrl, body);
+          throw new Error('Should throw Error.');
         } catch (error) {
           response = error.response;
         }
@@ -70,7 +72,7 @@ describe('Echo At Time API', () => {
       });
 
       it('should return array of errors', () => {
-        assert.isArray(response.body);
+        assert.isArray(response.data);
       });
     }
   );
