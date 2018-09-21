@@ -6,20 +6,17 @@ const { MessageConsumer } = require('common/services');
 
 describe('Message Consumer Unit Test', () => {
   let sandbox;
-  let messageConsumer;
-  let redisClientAddStub;
-  let redisClientRemoveStub;
+  let messageCosumer;
+  let checkIfMessageAvailableStub;
 
   before(() => {
     sandbox = sinon.createSandbox();
     sandbox.useFakeTimers();
 
-    redisClientAddStub = sandbox.stub();
-    redisClientRemoveStub = sandbox.stub();
+    checkIfMessageAvailableStub = sandbox.stub();
 
-    messageConsumer = new MessageConsumer({
-      add: redisClientAddStub,
-      remove: redisClientRemoveStub
+    messageCosumer = new MessageConsumer({
+      checkIfMessageAvailable: checkIfMessageAvailableStub
     });
   });
 
@@ -27,24 +24,109 @@ describe('Message Consumer Unit Test', () => {
     sandbox.restore();
   });
 
-  context('#addMessage', () => {
+  context('#checkNewMessages', () => {
+    let originalProcessIncomingMessage;
+
+    before(() => {
+      originalProcessIncomingMessage = messageCosumer.processIncomingMessage;
+      messageCosumer.processIncomingMessage = sandbox.stub();
+    });
+
+    after(() => {
+      messageCosumer.processIncomingMessage = originalProcessIncomingMessage;
+    });
+
+    context('when messages exists', () => {
+      let message;
+      let timestamp;
+
+      before(async () => {
+        message = faker.random.words(5);
+        timestamp = Date.now() + 1000;
+
+        checkIfMessageAvailableStub.resolves({ message, timestamp });
+
+        messageCosumer.processIncomingMessage.returns();
+
+        await messageCosumer.checkNewMessages();
+      });
+
+      after(() => {
+        sandbox.reset();
+      });
+
+      it('should check message', () => {
+        assert.ok(checkIfMessageAvailableStub.calledOnce);
+      });
+
+      it('should call processIncomingMessage function once', () => {
+        assert.ok(messageCosumer.processIncomingMessage.calledOnce);
+      });
+
+      it('should call processIncomingMessage with exactly args', () => {
+        sinon.assert.calledWithExactly(messageCosumer.processIncomingMessage, {
+          message,
+          timestamp
+        });
+      });
+    });
+
+    context('when messages not exists', () => {
+      before(async () => {
+        checkIfMessageAvailableStub.resolves();
+
+        await messageCosumer.checkNewMessages();
+      });
+
+      it('should check message', () => {
+        assert.ok(checkIfMessageAvailableStub.calledOnce);
+      });
+
+      it('should not call processIncomingMessage function', () => {
+        assert.ok(messageCosumer.processIncomingMessage.notCalled);
+      });
+    });
+  });
+
+  context('#processIncomingMessage', () => {
     let message;
     let timestamp;
+    let originalCreateTimerFunction;
 
     before(async () => {
       message = faker.random.words(5);
       timestamp = Date.now() + 1000;
-      redisClientAddStub.resolves();
+      originalCreateTimerFunction = messageCosumer._createTimer;
+      messageCosumer._createTimer = sandbox.stub();
 
-      await messageConsumer.addMessage(message, timestamp);
+      await messageCosumer.processIncomingMessage({ message, timestamp });
     });
 
-    it('should save message into redis', () => {
-      assert.ok(redisClientAddStub.calledOnce);
+    after(() => {
+      messageCosumer._createTimer = originalCreateTimerFunction;
     });
 
-    it('should create timer for message', () => {
-      assert.equal(messageConsumer._messageInProcess.size, 1);
+    it('should save message into messageInProgress array', () => {
+      assert.ok(
+        messageCosumer._messageInProcess.indexOf({ message, timestamp })
+      );
+    });
+
+    it('should create new timer and save it in Map structure', () => {
+      assert.strictEqual(messageCosumer._timersInProcess.size, 1);
+    });
+
+    it('should call _createTimer once', () => {
+      assert.ok(messageCosumer._createTimer.calledOnce);
+    });
+
+    it('should call _createTimer with exactly args', () => {
+      sinon.assert.calledWithExactly(
+        messageCosumer._createTimer,
+        timestamp,
+        message,
+        0
+      );
     });
   });
 });

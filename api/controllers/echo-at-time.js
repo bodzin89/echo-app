@@ -3,7 +3,6 @@ const { BadRequestResponse, ConflictResponse } = require('api/error-responses');
 module.exports = class EchoController {
   constructor(messageConsumer) {
     this.messageConsumer = messageConsumer;
-    this.messageConsumer.boostrap();
   }
 
   async postHandler(ctx) {

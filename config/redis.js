@@ -1,5 +1,4 @@
 module.exports = {
-  host: 'localhost',
-  port: '6379',
-  db: 'echo'
+  host: '127.0.0.1',
+  port: '6379'
 };

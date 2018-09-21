@@ -1,33 +1,74 @@
 module.exports = class MessageConsumer {
-  constructor(redisClient) {
-    this._redisClient = redisClient;
-    this._messageInProcess = new Map();
+  constructor(messagingClient) {
+    this._messagingClient = messagingClient;
+    this._messageInProcess = [];
+    this._timersInProcess = new Map();
+    this._isAlive = true;
   }
 
-  async addMessage(message, timestamp) {
-    await this._redisClient.add(timestamp, message);
+  async listen() {
+    while (this._isAlive) {
+      this.checkNewMessages();
 
-    this._messageInProcess.set(
+      await this._sleep();
+    }
+  }
+
+  async checkNewMessages() {
+    const messageBody = await this._messagingClient.checkIfMessageAvailable();
+
+    if (messageBody) {
+      this.processIncomingMessage(messageBody);
+    }
+  }
+
+  processIncomingMessage(messageBody) {
+    const { message, timestamp } = messageBody;
+
+    const length = this._messageInProcess.push(messageBody);
+
+    const messageIndex = length - 1;
+
+    this._timersInProcess.set(
       timestamp,
-      this._createTimer(timestamp, message)
+      this._createTimer(timestamp, message, messageIndex)
     );
   }
 
-  async boostrap() {
-    const allMessages = await this._redisClient.getAll();
+  returnMessagesBack() {
+    this._stopTimers();
 
-    allMessages.forEach(({ key, value }) => {
-      this._messageInProcess.set(key, this._createTimer(key, value));
-    });
+    return Promise.all(
+      this._messageInProcess.map(message =>
+        this._messagingClient.returnMessageBackToWaitQueue(message)
+      )
+    );
   }
 
-  _createTimer(timestamp, message) {
+  _stopTimers() {
+    this._timersInProcess.forEach(timer => clearTimeout(timer));
+  }
+
+  shutdown() {
+    this._isAlive = false;
+
+    return this.returnMessagesBack();
+  }
+
+  _createTimer(timestamp, message, elementToRemove) {
     return setTimeout(async () => {
-      process.stdout.write(message + '\n');
+      process.stdout.write(`${message}. ${new Date(timestamp)} \n`);
 
-      this._messageInProcess.delete(timestamp);
+      this._messageInProcess.splice(elementToRemove, 1);
 
-      await this._redisClient.remove(timestamp);
+      await this._messagingClient.removeMessageFromWorkQueue({
+        timestamp,
+        message
+      });
     }, timestamp - Date.now());
+  }
+
+  _sleep() {
+    return new Promise(resolve => setTimeout(resolve, 500));
   }
 };
